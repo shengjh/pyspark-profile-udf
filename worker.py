@@ -436,7 +436,7 @@ def read_udfs(pickleSer, infile, eval_type):
     else:
         profiler = None
         udfs = []
-        print("Nuuuuuuuuum udfs: ", num_udfs, " Pid: ", os.getpid())
+        # print("Nuuuuuuuuum udfs: ", num_udfs, " Pid: ", os.getpid())
         for i in range(num_udfs):
             udfs.append(read_single_udf(pickleSer, infile, eval_type, runner_conf, udf_index=i))
         profiler = udfs[0][2]
@@ -630,7 +630,7 @@ def main(infile, outfile):
     write_int(SpecialLengths.END_OF_DATA_SECTION, outfile)
     write_int(len(_accumulatorRegistry), outfile)
     for (aid, accum) in _accumulatorRegistry.items():
-        print("ac is:", _accumulatorRegistry.items())
+        # print("ac is:", _accumulatorRegistry.items())
         pickleSer._write_with_length((aid, accum._value), outfile)
 
     # check end of stream
@@ -644,7 +644,6 @@ def main(infile, outfile):
 
 if __name__ == '__main__':
     # Read information about how to connect back to the JVM from the environment.
-    print()
     java_port = int(os.environ["PYTHON_WORKER_FACTORY_PORT"])
     auth_secret = os.environ["PYTHON_WORKER_FACTORY_SECRET"]
     (sock_file, _) = local_connect_and_auth(java_port, auth_secret)
