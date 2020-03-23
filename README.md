@@ -7,7 +7,7 @@
   ```
 
 * How to use
-
-    Compress this project to pyspark.zip, and move it to
+    1. Rename this project to pyspark
+    2. Compress this project to pyspark.zip, and move it to
     $SPARK_HOME/python/lib
 
