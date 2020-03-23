@@ -89,6 +89,7 @@ TypeError:...
 import sys
 import select
 import struct
+
 if sys.version < '3':
     import SocketServer
 else:
@@ -105,6 +106,8 @@ pickleSer = PickleSerializer()
 # Holds accumulators registered on the current machine, keyed by ID. This is then used to send
 # the local accumulator updates back to the driver program at the end of a task.
 _accumulatorRegistry = {}
+hosts_accum = {}
+hosts = []
 _udf_dic = {99999: ''}
 
 
@@ -222,7 +225,6 @@ INT_ACCUMULATOR_PARAM = AddingAccumulatorParam(0)
 FLOAT_ACCUMULATOR_PARAM = AddingAccumulatorParam(0.0)
 COMPLEX_ACCUMULATOR_PARAM = AddingAccumulatorParam(0.0j)
 
-hosts = set()
 
 
 class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
@@ -249,7 +251,11 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
             for _ in range(num_updates):
                 (aid, update, host_name) = pickleSer._read_with_length(self.rfile)
                 _accumulatorRegistry[aid] += update
-                hosts.add(host_name)
+                if host_name not in hosts:
+                    from pyspark.profiler import PStatsParam
+                    hosts_accum[host_name] = Accumulator(None, None, PStatsParam)
+                    hosts.append(host_name)
+                hosts_accum[host_name] += update
             # Write a byte in acknowledgement
             self.wfile.write(struct.pack("!b", 1))
             return False
@@ -292,6 +298,7 @@ class AccumulatorServer(SocketServer.TCPServer):
 
 def _start_update_server(auth_token):
     """Start a TCP server to receive accumulator updates in a daemon thread, and returns it"""
+
     server = AccumulatorServer(("localhost", 0), _UpdateRequestHandler, auth_token)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = False

@@ -141,6 +141,13 @@ class Profiler(object):
             stats.dump_stats(p)
             os.system("flameprof " + p + " > " + flam)
 
+        from pyspark.accumulators import hosts_accum
+        for h, ac in hosts_accum.items():
+            p = os.path.join(path, "host_%s.pstats" % h)
+            flam = os.path.join(path, "host_%s.svg" % h)
+            ac.value.dump_stats(p)
+            os.system("flameprof " + p + " > " + flam)
+
 
 class PStatsParam(AccumulatorParam):
     """PStatsParam is used to merge pstats.Stats"""
