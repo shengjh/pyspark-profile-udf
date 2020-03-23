@@ -629,9 +629,10 @@ def main(infile, outfile):
     # Mark the beginning of the accumulators section of the output
     write_int(SpecialLengths.END_OF_DATA_SECTION, outfile)
     write_int(len(_accumulatorRegistry), outfile)
+    import socket
     for (aid, accum) in _accumulatorRegistry.items():
         # print("ac is:", _accumulatorRegistry.items())
-        pickleSer._write_with_length((aid, accum._value), outfile)
+        pickleSer._write_with_length((aid, accum._value, socket.gethostname()), outfile)
 
     # check end of stream
     if read_int(infile) == SpecialLengths.END_OF_STREAM:

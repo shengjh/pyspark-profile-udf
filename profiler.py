@@ -58,6 +58,8 @@ class ProfilerCollector(object):
 
     def show_profiles(self):
         """ Print the profile stats to stdout """
+        from pyspark.accumulators import hosts
+        print(hosts)
         for i, (id, profiler, showed) in enumerate(self.profilers):
             if not showed and profiler:
                 profiler.show(id)

@@ -222,6 +222,8 @@ INT_ACCUMULATOR_PARAM = AddingAccumulatorParam(0)
 FLOAT_ACCUMULATOR_PARAM = AddingAccumulatorParam(0.0)
 COMPLEX_ACCUMULATOR_PARAM = AddingAccumulatorParam(0.0j)
 
+hosts = set()
+
 
 class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
 
@@ -245,8 +247,9 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
         def accum_updates():
             num_updates = read_int(self.rfile)
             for _ in range(num_updates):
-                (aid, update) = pickleSer._read_with_length(self.rfile)
+                (aid, update, host_name) = pickleSer._read_with_length(self.rfile)
                 _accumulatorRegistry[aid] += update
+                hosts.add(host_name)
             # Write a byte in acknowledgement
             self.wfile.write(struct.pack("!b", 1))
             return False

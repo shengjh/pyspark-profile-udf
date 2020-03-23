@@ -33,14 +33,13 @@ __all__ = ["UDFRegistration"]
 def _wrap_function(self, sc, func, returnType):
     if sc.profiler_collector:
         profiler = sc.profiler_collector.new_profiler(sc)
+        from pyspark.accumulators import _udf_dic
+        key = max(_udf_dic.keys())
+        sc.profiler_collector.add_profiler(key + 1, profiler)
+        _udf_dic[key+1] = self._name
     else:
         profiler = None
     command = (func, returnType, profiler)
-    from pyspark.accumulators import _udf_dic
-    key = max(_udf_dic.keys())
-    if sc.profiler_collector:
-        sc.profiler_collector.add_profiler(key + 1, profiler)
-        _udf_dic[key+1] = self._name
     pickled_command, broadcast_vars, env, includes = _prepare_for_python_RDD(sc, command)
     return sc._jvm.PythonFunction(bytearray(pickled_command), env, includes, sc.pythonExec,
                                   sc.pythonVer, broadcast_vars, sc._javaAccumulator)
