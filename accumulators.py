@@ -97,9 +97,7 @@ else:
 import threading
 from pyspark.serializers import read_int, PickleSerializer
 
-
 __all__ = ['Accumulator', 'AccumulatorParam', '_udf_dic']
-
 
 pickleSer = PickleSerializer()
 
@@ -123,7 +121,6 @@ def _deserialize_accumulator(aid, zero_value, accum_param):
 
 
 class Accumulator(object):
-
     """
     A shared variable that can be accumulated, i.e., has a commutative and associative "add"
     operation. Worker tasks on a Spark cluster can add values to an Accumulator with the `+=`
@@ -180,7 +177,6 @@ class Accumulator(object):
 
 
 class AccumulatorParam(object):
-
     """
     Helper object that defines how to accumulate values of a given type.
     """
@@ -201,7 +197,6 @@ class AccumulatorParam(object):
 
 
 class AddingAccumulatorParam(AccumulatorParam):
-
     """
     An AccumulatorParam that uses the + operators to add values. Designed for simple types
     such as integers, floats, and lists. Requires the zero value for the underlying type
@@ -225,9 +220,7 @@ FLOAT_ACCUMULATOR_PARAM = AddingAccumulatorParam(0.0)
 COMPLEX_ACCUMULATOR_PARAM = AddingAccumulatorParam(0.0j)
 
 
-
 class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
-
     """
     This handler will keep polling updates from the same socket until the
     server is shutdown.
@@ -254,12 +247,14 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
                     from pyspark.profiler import PStatsParam
                     print(host_name)
                     hosts_accum[host_name] = Accumulator(host_name, None, PStatsParam)
-                #Judge whether is udf accum
+                # Judge whether is udf accum
                 for pair in _udf_dic.values():
                     if aid == pair[0]:
                         _accumulatorRegistry[host_name] += update
                         break
             print(_accumulatorRegistry)
+            print(hosts_accum)
+            print("-----------------------------------")
             # Write a byte in acknowledgement
             self.wfile.write(struct.pack("!b", 1))
             return False
@@ -309,8 +304,10 @@ def _start_update_server(auth_token):
     thread.start()
     return server
 
+
 if __name__ == "__main__":
     import doctest
+
     (failure_count, test_count) = doctest.testmod()
     if failure_count:
         sys.exit(-1)
