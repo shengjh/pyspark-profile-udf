@@ -241,7 +241,7 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
         def accum_updates():
             num_updates = read_int(self.rfile)
             for _ in range(num_updates):
-                (aid, update, host_name) = pickleSer._read_with_length(self.rfile)
+                (aid, update, update2, host_name) = pickleSer._read_with_length(self.rfile)
                 _accumulatorRegistry[aid] += update
                 if host_name not in hosts_accum.keys():
                     from pyspark.profiler import PStatsParam
@@ -251,11 +251,12 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
                 for pair in _udf_dic.values():
                     if aid == pair[0]:
                         x = _accumulatorRegistry[host_name]
-                        if x.value is None:
-                            import copy
-                            x += copy.deepcopy(update)
-                        else:
-                            x += update
+                        x += update2
+                        # if x.value is None:
+                        #     import copy
+                        #     x += copy.deepcopy(update)
+                        # else:
+                        #     x += update
                         break
             print(_accumulatorRegistry)
             print(hosts_accum)

@@ -144,6 +144,7 @@ class Profiler(object):
                 flam = os.path.join(path, "rdd_%s.svg" % id)
             stats.dump_stats(p)
             os.system("flameprof " + p + " > " + flam)
+            os.system()
 
 
 class PStatsParam(AccumulatorParam):

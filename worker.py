@@ -632,7 +632,7 @@ def main(infile, outfile):
     import socket
     for (aid, accum) in _accumulatorRegistry.items():
         # print("ac is:", _accumulatorRegistry.items())
-        pickleSer._write_with_length((aid, accum._value, socket.gethostname()), outfile)
+        pickleSer._write_with_length((aid, accum._value, accum._value, socket.gethostname()), outfile)
 
     # check end of stream
     if read_int(infile) == SpecialLengths.END_OF_STREAM:
