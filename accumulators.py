@@ -85,7 +85,7 @@ Traceback (most recent call last):
     ...
 TypeError:...
 """
-
+import pstats
 import sys
 import select
 import struct
@@ -246,7 +246,7 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
                 if host_name not in hosts_accum.keys():
                     from pyspark.profiler import PStatsParam
                     print(host_name)
-                    hosts_accum[host_name] = Accumulator(host_name, None, PStatsParam)
+                    hosts_accum[host_name] = Accumulator(host_name, pstats.Stats(), PStatsParam)
                 # Judge whether is udf accum
                 for pair in _udf_dic.values():
                     if aid == pair[0]:
