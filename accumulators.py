@@ -246,11 +246,16 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
                 if host_name not in hosts_accum.keys():
                     from pyspark.profiler import PStatsParam
                     print(host_name)
-                    hosts_accum[host_name] = Accumulator(host_name, pstats.Stats(), PStatsParam)
+                    hosts_accum[host_name] = Accumulator(host_name, None, PStatsParam)
                 # Judge whether is udf accum
                 for pair in _udf_dic.values():
                     if aid == pair[0]:
-                        _accumulatorRegistry[host_name] += update
+                        x = _accumulatorRegistry[host_name]
+                        if x.value is None:
+                            import copy
+                            x += copy.deepcopy(update)
+                        else:
+                            x += update
                         break
             print(_accumulatorRegistry)
             print(hosts_accum)
