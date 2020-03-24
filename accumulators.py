@@ -176,7 +176,7 @@ class Accumulator(object):
         return str(self._value)
 
     def __repr__(self):
-        return "Accumulator<id=%i, value=%s>" % (self.aid, self._value)
+        return "Accumulator<id=%s, value=%s>" % (self.aid, self._value)
 
 
 class AccumulatorParam(object):
@@ -254,10 +254,12 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
                     from pyspark.profiler import PStatsParam
                     print(host_name)
                     hosts_accum[host_name] = Accumulator(host_name, None, PStatsParam)
+                #Judge whether is udf accum
                 for pair in _udf_dic.values():
                     if aid == pair[0]:
-                        hosts_accum[host_name] += update
+                        _accumulatorRegistry[host_name] += update
                         break
+            print(_accumulatorRegistry)
             # Write a byte in acknowledgement
             self.wfile.write(struct.pack("!b", 1))
             return False
