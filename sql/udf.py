@@ -36,7 +36,7 @@ def _wrap_function(self, sc, func, returnType):
         from pyspark.accumulators import _udf_dic
         key = max(_udf_dic.keys())
         sc.profiler_collector.add_profiler(key + 1, profiler)
-        _udf_dic[key+1] = self._name
+        _udf_dic[key+1] = (SparkContext._next_accum_id - 1, self._name)
     else:
         profiler = None
     command = (func, returnType, profiler)

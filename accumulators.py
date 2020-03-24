@@ -107,8 +107,7 @@ pickleSer = PickleSerializer()
 # the local accumulator updates back to the driver program at the end of a task.
 _accumulatorRegistry = {}
 hosts_accum = {}
-hosts = []
-_udf_dic = {99999: ''}
+_udf_dic = {99999: ()}
 
 
 def _deserialize_accumulator(aid, zero_value, accum_param):
@@ -251,11 +250,12 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
             for _ in range(num_updates):
                 (aid, update, host_name) = pickleSer._read_with_length(self.rfile)
                 _accumulatorRegistry[aid] += update
-                if host_name not in hosts:
+                if host_name not in hosts_accum.keys():
                     from pyspark.profiler import PStatsParam
                     hosts_accum[host_name] = Accumulator(None, None, PStatsParam)
-                    hosts.append(host_name)
-                hosts_accum[host_name] += update
+                for pair in _udf_dic.values():
+                    if aid in pair:
+                        hosts_accum[host_name] += update
             # Write a byte in acknowledgement
             self.wfile.write(struct.pack("!b", 1))
             return False

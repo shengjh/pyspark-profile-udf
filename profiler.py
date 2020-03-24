@@ -55,11 +55,17 @@ class ProfilerCollector(object):
         for id, profiler, _ in self.profilers:
             profiler.dump(id, path)
         self.profilers = []
+        from pyspark.accumulators import hosts_accum
+        for h, ac in hosts_accum.items():
+            p = os.path.join(path, "host_%s.pstats" % h)
+            flam = os.path.join(path, "host_%s.svg" % h)
+            ac.value.dump_stats(p)
+            os.system("flameprof " + p + " > " + flam)
 
     def show_profiles(self):
         """ Print the profile stats to stdout """
-        from pyspark.accumulators import hosts
-        print(hosts)
+        from pyspark.accumulators import hosts_accum
+        print(hosts_accum.keys())
         for i, (id, profiler, showed) in enumerate(self.profilers):
             if not showed and profiler:
                 profiler.show(id)
@@ -119,7 +125,7 @@ class Profiler(object):
             from pyspark.accumulators import _udf_dic
             print("=" * 60)
             if id in _udf_dic.keys():
-                print("Profile of UDF<udf=%s>" % _udf_dic[id])
+                print("Profile of UDF<udf=%s>" % _udf_dic[id][1])
             else:
                 print("Profile of RDD<rdd=%d>" % id)
             print("=" * 60)
@@ -133,19 +139,12 @@ class Profiler(object):
         if stats:
             from pyspark.accumulators import _udf_dic
             if id in _udf_dic.keys():
-                p = os.path.join(path, "udf_%s.pstats" % _udf_dic[id])
-                flam = os.path.join(path, "udf_%s.svg" % _udf_dic[id])
+                p = os.path.join(path, "udf_%s.pstats" % _udf_dic[id][1])
+                flam = os.path.join(path, "udf_%s.svg" % _udf_dic[id][1])
             else:
                 p = os.path.join(path, "rdd_%d.pstats" % id)
                 flam = os.path.join(path, "rdd_%s.svg" % id)
             stats.dump_stats(p)
-            os.system("flameprof " + p + " > " + flam)
-
-        from pyspark.accumulators import hosts_accum
-        for h, ac in hosts_accum.items():
-            p = os.path.join(path, "host_%s.pstats" % h)
-            flam = os.path.join(path, "host_%s.svg" % h)
-            ac.value.dump_stats(p)
             os.system("flameprof " + p + " > " + flam)
 
 
