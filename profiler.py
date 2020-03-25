@@ -54,12 +54,13 @@ class ProfilerCollector(object):
         """ Dump the profile stats into directory `path` """
         for id, profiler, _ in self.profilers:
             profiler.dump(id, path)
-        from pyspark.accumulators import hosts_accum
-        for h, ac in hosts_accum.items():
-            p = os.path.join(path, "host_%s.pstats" % h)
-            flam = os.path.join(path, "host_%s.svg" % h)
-            ac.value.dump_stats(p)
-            os.system("flameprof " + p + " > " + flam)
+        #TODO(sjh): add each worker each udf
+        # from pyspark.accumulators import hosts_accum
+        # for h, ac in hosts_accum.items():
+        #     p = os.path.join(path, "host_%s.pstats" % h)
+        #     flam = os.path.join(path, "host_%s.svg" % h)
+        #     ac.value.dump_stats(p)
+        #     os.system("flameprof " + p + " > " + flam)
         self.profilers = []
 
     def show_profiles(self):
