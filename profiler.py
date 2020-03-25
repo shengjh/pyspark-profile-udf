@@ -140,11 +140,11 @@ class Profiler(object):
             if id in _udf_dic.keys():
                 p = os.path.join(path, "udf_%s.pstats" % _udf_dic[id][1])
                 flam = os.path.join(path, "udf_%s.svg" % _udf_dic[id][1])
+                import flameprof
+                flameprof.render(stats.stats, flameprof.get_out(flam))
             else:
                 p = os.path.join(path, "rdd_%d.pstats" % id)
                 flam = os.path.join(path, "rdd_%s.svg" % id)
-            stats.dump_stats(p)
-            os.system("flameprof " + p + " > " + flam)
 
 
 class PStatsParam(AccumulatorParam):

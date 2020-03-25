@@ -242,7 +242,7 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
             num_updates = read_int(self.rfile)
             for _ in range(num_updates):
                 (aid, update, update2, host_name) = pickleSer._read_with_length(self.rfile)
-                assert (update is not update2)
+                # assert (update is not update2)
                 _accumulatorRegistry[aid] += update
                 if host_name not in hosts_accum.keys():
                     from pyspark.profiler import PStatsParam
@@ -259,9 +259,9 @@ class _UpdateRequestHandler(SocketServer.StreamRequestHandler):
                         # else:
                         #     x += update
                         break
-            print(_accumulatorRegistry)
-            print(hosts_accum)
-            print("-----------------------------------")
+            # print(_accumulatorRegistry)
+            # print(hosts_accum)
+            # print("-----------------------------------")
             # Write a byte in acknowledgement
             self.wfile.write(struct.pack("!b", 1))
             return False
