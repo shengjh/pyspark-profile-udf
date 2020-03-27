@@ -329,13 +329,15 @@ def read_udfs(pickleSer, infile, eval_type):
     is_scalar_iter = eval_type == PythonEvalType.SQL_SCALAR_PANDAS_ITER_UDF
     is_map_iter = eval_type == PythonEvalType.SQL_MAP_PANDAS_ITER_UDF
 
+    profiler = None
+
     if is_scalar_iter or is_map_iter:
         if is_scalar_iter:
             assert num_udfs == 1, "One SCALAR_ITER UDF expected here."
         if is_map_iter:
             assert num_udfs == 1, "One MAP_ITER UDF expected here."
 
-        arg_offsets, udf = read_single_udf(
+        arg_offsets, udf, profiler = read_single_udf(
             pickleSer, infile, eval_type, runner_conf, udf_index=0)
 
         def func(_, iterator):
@@ -375,7 +377,7 @@ def read_udfs(pickleSer, infile, eval_type):
                                    (num_input_rows[0], num_output_rows))
 
         # profiling is not supported for UDF
-        return func, None, ser, ser
+        return func, profiler, ser, ser
 
     def extract_key_value_indexes(grouped_arg_offsets):
         """
@@ -410,7 +412,7 @@ def read_udfs(pickleSer, infile, eval_type):
 
         # See FlatMapGroupsInPandasExec for how arg_offsets are used to
         # distinguish between grouping attributes and data attributes
-        arg_offsets, f = read_single_udf(pickleSer, infile, eval_type, runner_conf, udf_index=0)
+        arg_offsets, f, profiler = read_single_udf(pickleSer, infile, eval_type, runner_conf, udf_index=0)
         parsed_offsets = extract_key_value_indexes(arg_offsets)
 
         # Create function like this:
@@ -423,7 +425,7 @@ def read_udfs(pickleSer, infile, eval_type):
         # We assume there is only one UDF here because cogrouped map doesn't
         # support combining multiple UDFs.
         assert num_udfs == 1
-        arg_offsets, f = read_single_udf(pickleSer, infile, eval_type, runner_conf, udf_index=0)
+        arg_offsets, f, profiler = read_single_udf(pickleSer, infile, eval_type, runner_conf, udf_index=0)
 
         parsed_offsets = extract_key_value_indexes(arg_offsets)
 
@@ -434,7 +436,6 @@ def read_udfs(pickleSer, infile, eval_type):
             df2_vals = [a[1][o] for o in parsed_offsets[1][1]]
             return f(df1_keys, df1_vals, df2_keys, df2_vals)
     else:
-        profiler = None
         udfs = []
         # print("Nuuuuuuuuum udfs: ", num_udfs, " Pid: ", os.getpid())
         for i in range(num_udfs):
